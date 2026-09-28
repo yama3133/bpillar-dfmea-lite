@@ -1,0 +1,39 @@
+:root { font-family: system-ui, -apple-system, 'Hiragino Sans', sans-serif; color: #1f2933; background: #f5f6f7; }
+body { margin: 0; }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 12px 24px; background: #26323d; color: #e8ecef; }
+.topbar a.brand { color: inherit; text-decoration: none; font-weight: 600; }
+.topbar .user { font-size: 14px; display: flex; gap: 12px; align-items: center; }
+.container { max-width: 1100px; margin: 24px auto; padding: 0 16px; display: grid; gap: 16px; }
+.card { background: #fff; border: 1px solid #dde1e5; border-radius: 6px; padding: 20px; }
+.card.narrow { max-width: 380px; margin: 40px auto; display: grid; gap: 12px; }
+h1 { font-size: 20px; margin: 0 0 12px; } h2 { font-size: 16px; margin: 0 0 12px; } h3 { font-size: 14px; }
+label { display: grid; gap: 4px; font-size: 14px; margin-bottom: 12px; }
+input, select, textarea { font: inherit; padding: 8px; border: 1px solid #c5ccd3; border-radius: 4px; }
+button { font: inherit; padding: 8px 16px; border-radius: 4px; border: 1px solid #3b5b73; background: #3b5b73; color: #fff; cursor: pointer; }
+button:disabled { opacity: .5; cursor: default; }
+button.secondary { background: #fff; color: #3b5b73; margin-left: 8px; }
+button.danger { background: #8a3b3b; border-color: #8a3b3b; }
+button.link { background: none; border: none; color: inherit; text-decoration: underline; padding: 0; }
+.presets { margin-bottom: 12px; font-size: 14px; }
+.muted { color: #6b7780; } .small { font-size: 12px; } .strong { font-weight: 600; }
+.error { color: #9b2c2c; }
+.meta { display: grid; grid-template-columns: 120px 1fr; gap: 4px 12px; margin: 0; font-size: 14px; }
+.meta dt { color: #6b7780; }
+.scenario { font-size: 14px; background: #f5f6f7; padding: 8px 12px; border-radius: 4px; }
+.status { padding: 2px 8px; border-radius: 10px; background: #e3e8ec; font-size: 13px; }
+.status-completed { background: #dcefe2; } .status-failed, .status-rejected_by_reviewer { background: #f3dddd; }
+.status-WAITING_HITL { background: #fbeccd; }
+.hitl { border-color: #d9a53d; background: #fffbf2; }
+.actions { display: flex; gap: 8px; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 12px; }
+th, td { border-bottom: 1px solid #e6e9ec; padding: 6px; text-align: left; vertical-align: top; }
+td.num, th:nth-child(n+5) { text-align: right; }
+td.path { font-size: 12px; }
+.badge { padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+.badge.ok { background: #dcefe2; } .badge.bad { background: #f3dddd; }
+.timeline { list-style: none; padding: 0; margin: 0; font-size: 13px; max-height: 420px; overflow: auto; }
+.timeline li { display: grid; grid-template-columns: 44px 80px 150px 1fr; gap: 8px; padding: 4px 0; border-bottom: 1px dashed #eceff1; }
+.timeline .seq, .timeline .ts { color: #6b7780; } .timeline .type { font-family: ui-monospace, monospace; }
+.evt-agent-tool_call { color: #6b7780; }
+.evt-review-failed .type { color: #9b2c2c; } .evt-hitl-required .type { color: #9a6b12; }
+details.rationale { font-size: 13px; margin-top: 8px; }

@@ -1,0 +1,5 @@
+{
+  "name": "Seatbelt anchor mount",
+  "componentIri": "https://example.org/bpillar-dfmea/id/SeatbeltAnchorMount",
+  "scenario": "Review the upper seatbelt anchor mount on the hot-stamped B-pillar. The design team plans to move the anchor 15 mm closer to a spot-weld flange. Identify failure modes at this mount, trace their causal chains back to the originating manufacturing processes, and rate severity, occurrence and detection."
+}

@@ -1,0 +1,32 @@
+[project]
+name = "dfmea"
+version = "0.1.0"
+description = "Lightweight AI-augmented B-pillar DFMEA (rdflib + Strands Agents on AWS Lambda)"
+requires-python = ">=3.13"
+dependencies = [
+    "boto3>=1.40",
+    "rdflib>=7.1",
+    "pydantic>=2.9",
+    "strands-agents>=1.0",
+    "PyJWT[crypto]>=2.9",
+]
+
+[dependency-groups]
+dev = [
+    "botocore[crt]>=1.40",
+    "pytest>=8.3",
+    "moto[dynamodb,s3,stepfunctions]>=5.1",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+markers = ["live: calls real Amazon Bedrock (run with -m live)"]
+addopts = "-m 'not live'"

@@ -1,0 +1,10 @@
+.local/
+web/public/config.json
+cdk.out
+node_modules
+.venv
+__pycache__/
+.pytest_cache/
+*.egg-info/
+web/dist/
+web/tsconfig.tsbuildinfo

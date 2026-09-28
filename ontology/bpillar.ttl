@@ -1,0 +1,134 @@
+# B-pillar DFMEA demo ontology.
+# NOTE: engineering content is a simplified illustration for demo purposes, NOT real engineering data.
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix dfm:  <https://example.org/bpillar-dfmea/ontology#> .
+@prefix dfmi: <https://example.org/bpillar-dfmea/id/> .
+
+<https://example.org/bpillar-dfmea/ontology> a owl:Ontology ;
+    rdfs:label "B-pillar DFMEA demo ontology" ;
+    rdfs:comment "Simplified demo ontology for a hot-stamped B-pillar. Not real engineering data." ;
+    owl:versionInfo "1.0.0" .
+
+# ---------- Classes ----------
+dfm:Component a owl:Class ; rdfs:label "Component" ; rdfs:comment "A physical part of the B-pillar assembly." .
+dfm:Interface a owl:Class ; rdfs:label "Interface" ; rdfs:comment "A joint or mounting location where components meet." .
+dfm:Material a owl:Class ; rdfs:label "Material" ; rdfs:comment "Base material or coating of a component." .
+dfm:Process a owl:Class ; rdfs:label "Process" ; rdfs:comment "A manufacturing process step." .
+dfm:Cause a owl:Class ; rdfs:label "Cause" ; rdfs:comment "A physical or process condition that can lead to failure." .
+dfm:FailureMode a owl:Class ; rdfs:label "Failure mode" ; rdfs:comment "The way a component or interface fails." .
+dfm:Effect a owl:Class ; rdfs:label "Effect" ; rdfs:comment "Consequence of a failure mode at vehicle level." .
+dfm:DetectionControl a owl:Class ; rdfs:label "Detection control" ; rdfs:comment "Test or inspection that detects a failure mode." .
+dfm:PreventionControl a owl:Class ; rdfs:label "Prevention control" ; rdfs:comment "Design or process measure that prevents a failure mode." .
+
+# ---------- Properties ----------
+dfm:madeOf a owl:ObjectProperty ; rdfs:domain dfm:Component ; rdfs:range dfm:Material ;
+    rdfs:label "made of" ; rdfs:comment "Component is made of a material." .
+dfm:formedBy a owl:ObjectProperty ; rdfs:domain dfm:Component ; rdfs:range dfm:Process ;
+    rdfs:label "formed by" ; rdfs:comment "Component is formed by a process." .
+dfm:joins a owl:ObjectProperty ; rdfs:domain dfm:Interface ; rdfs:range dfm:Component ;
+    rdfs:label "joins" ; rdfs:comment "Interface joins a component." .
+dfm:joinedBy a owl:ObjectProperty ; rdfs:domain dfm:Interface ; rdfs:range dfm:Process ;
+    rdfs:label "joined by" ; rdfs:comment "Interface is created by a joining process." .
+dfm:induces a owl:ObjectProperty ; rdfs:domain dfm:Process ; rdfs:range dfm:Cause ;
+    rdfs:label "induces" ; rdfs:comment "Process can induce a cause." .
+dfm:causes a owl:ObjectProperty ;
+    rdfs:label "causes" ; rdfs:comment "Cause -> Cause/FailureMode, or FailureMode -> Effect." .
+dfm:occursAt a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ;
+    rdfs:label "occurs at" ; rdfs:comment "Failure mode occurs at a component or interface." .
+dfm:detectedBy a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ; rdfs:range dfm:DetectionControl ;
+    rdfs:label "detected by" ; rdfs:comment "Failure mode is detected by a detection control." .
+dfm:preventedBy a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ; rdfs:range dfm:PreventionControl ;
+    rdfs:label "prevented by" ; rdfs:comment "Failure mode is prevented by a prevention control." .
+dfm:defaultSeverity a owl:DatatypeProperty ; rdfs:domain dfm:Effect ; rdfs:range xsd:integer ;
+    rdfs:label "default severity" ; rdfs:comment "Reference severity (1-10) for the effect." .
+
+# ---------- Materials ----------
+dfmi:Steel22MnB5 a dfm:Material ; rdfs:label "22MnB5" ; rdfs:comment "Boron steel for press hardening (demo)." .
+dfmi:AlSiCoating a dfm:Material ; rdfs:label "AlSi coating" ; rdfs:comment "Aluminium-silicon pre-coating (demo)." .
+
+# ---------- Processes ----------
+dfmi:HotStamping a dfm:Process ; rdfs:label "Hot stamping" ; rdfs:comment "Press hardening of the blank (demo)." .
+dfmi:Austenitization a dfm:Process ; rdfs:label "Austenitization" ; rdfs:comment "Furnace heating of the blank before forming (demo)." .
+dfmi:DieQuench a dfm:Process ; rdfs:label "Die quench" ; rdfs:comment "Quenching in the cooled die (demo)." .
+dfmi:SpotWelding a dfm:Process ; rdfs:label "Spot welding" ; rdfs:comment "Resistance spot welding of the assembly (demo)." .
+dfmi:LaserTrimming a dfm:Process ; rdfs:label "Laser trimming" ; rdfs:comment "Laser trimming of the hardened part (demo)." .
+
+# ---------- Components ----------
+dfmi:BPillarOuter a dfm:Component ; rdfs:label "B-pillar outer" ; rdfs:comment "Outer panel of the B-pillar (demo)." ;
+    dfm:madeOf dfmi:Steel22MnB5 , dfmi:AlSiCoating ;
+    dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench , dfmi:LaserTrimming .
+dfmi:BPillarInner a dfm:Component ; rdfs:label "B-pillar inner" ; rdfs:comment "Inner panel of the B-pillar (demo)." ;
+    dfm:madeOf dfmi:Steel22MnB5 ;
+    dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench .
+dfmi:BPillarReinforcement a dfm:Component ; rdfs:label "B-pillar reinforcement" ; rdfs:comment "Reinforcement between outer and inner (demo)." ;
+    dfm:madeOf dfmi:Steel22MnB5 , dfmi:AlSiCoating ;
+    dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench .
+
+# ---------- Interfaces ----------
+dfmi:RoofRailJoint a dfm:Interface ; rdfs:label "Roof rail joint" ; rdfs:comment "Upper joint to the roof rail (demo)." ;
+    dfm:joins dfmi:BPillarOuter , dfmi:BPillarInner ; dfm:joinedBy dfmi:SpotWelding .
+dfmi:RockerJoint a dfm:Interface ; rdfs:label "Rocker joint" ; rdfs:comment "Lower joint to the rocker (demo)." ;
+    dfm:joins dfmi:BPillarOuter , dfmi:BPillarInner , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
+dfmi:SeatbeltAnchorMount a dfm:Interface ; rdfs:label "Seatbelt anchor mount" ; rdfs:comment "Mounting of the upper seatbelt anchor (demo)." ;
+    dfm:joins dfmi:BPillarInner , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
+dfmi:HingeReinforcementJoint a dfm:Interface ; rdfs:label "Hinge reinforcement joint" ; rdfs:comment "Rear door hinge reinforcement joint (demo)." ;
+    dfm:joins dfmi:BPillarOuter , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
+
+# ---------- Causes ----------
+dfmi:HydrogenAbsorption a dfm:Cause ; rdfs:label "Hydrogen absorption" ; rdfs:comment "Hydrogen uptake from furnace atmosphere (demo)." ;
+    dfm:causes dfmi:HydrogenEmbrittlement .
+dfmi:HydrogenEmbrittlement a dfm:Cause ; rdfs:label "Hydrogen embrittlement" ; rdfs:comment "Loss of ductility due to diffusible hydrogen (demo)." ;
+    dfm:causes dfmi:HAZDelayedFracture .
+dfmi:SpotWeldResidualStress a dfm:Cause ; rdfs:label "Spot weld residual stress" ; rdfs:comment "Tensile residual stress around the weld (demo)." ;
+    dfm:causes dfmi:HAZDelayedFracture .
+dfmi:ElectrodeTipWear a dfm:Cause ; rdfs:label "Electrode tip wear" ; rdfs:comment "Mushrooming of electrode tips (demo)." ;
+    dfm:causes dfmi:WeldCurrentDensityDrop .
+dfmi:WeldCurrentDensityDrop a dfm:Cause ; rdfs:label "Weld current density drop" ; rdfs:comment "Insufficient current density at the faying surface (demo)." ;
+    dfm:causes dfmi:WeldNuggetPullout .
+dfmi:CoatingInterference a dfm:Cause ; rdfs:label "Coating interference" ; rdfs:comment "AlSi coating layer disturbing nugget formation (demo)." ;
+    dfm:causes dfmi:WeldNuggetPullout .
+dfmi:HAZOvertempering a dfm:Cause ; rdfs:label "HAZ over-tempering" ; rdfs:comment "Excess heat input tempers martensite in the HAZ (demo)." ;
+    dfm:causes dfmi:HAZSoftening .
+dfmi:InsufficientQuenchRate a dfm:Cause ; rdfs:label "Insufficient quench rate" ; rdfs:comment "Cooling rate below critical rate (demo)." ;
+    dfm:causes dfmi:IncompleteMartensiteTransformation .
+dfmi:TrimEdgeHeatDamage a dfm:Cause ; rdfs:label "Trim edge heat damage" ; rdfs:comment "Heat-affected trim edge (demo)." ;
+    dfm:causes dfmi:EdgeMicrocracking .
+
+# ---------- Process -> Cause ----------
+dfmi:Austenitization dfm:induces dfmi:HydrogenAbsorption .
+dfmi:SpotWelding dfm:induces dfmi:SpotWeldResidualStress , dfmi:ElectrodeTipWear , dfmi:CoatingInterference , dfmi:HAZOvertempering .
+dfmi:DieQuench dfm:induces dfmi:InsufficientQuenchRate .
+dfmi:LaserTrimming dfm:induces dfmi:TrimEdgeHeatDamage .
+
+# ---------- Failure modes ----------
+dfmi:HAZDelayedFracture a dfm:FailureMode ; rdfs:label "HAZ delayed fracture" ; rdfs:comment "Time-delayed cracking in the weld HAZ under sustained load (demo)." ;
+    dfm:occursAt dfmi:SeatbeltAnchorMount ; dfm:causes dfmi:AnchorPulloutUnderLoad ;
+    dfm:detectedBy dfmi:DelayedFractureTest ; dfm:preventedBy dfmi:FurnaceDewPointControl .
+dfmi:WeldNuggetPullout a dfm:FailureMode ; rdfs:label "Weld nugget pullout" ; rdfs:comment "Undersized nugget pulls out of the sheet (demo)." ;
+    dfm:occursAt dfmi:RoofRailJoint ; dfm:causes dfmi:RoofCrushResistanceLoss ;
+    dfm:detectedBy dfmi:UltrasonicWeldInspection ; dfm:preventedBy dfmi:WeldScheduleValidation , dfmi:ElectrodeDressingSchedule .
+dfmi:HAZSoftening a dfm:FailureMode ; rdfs:label "HAZ softening" ; rdfs:comment "Local hardness drop around the weld (demo)." ;
+    dfm:occursAt dfmi:RockerJoint ; dfm:causes dfmi:SideImpactIntrusionIncrease ;
+    dfm:detectedBy dfmi:HardnessTraverse ; dfm:preventedBy dfmi:WeldScheduleValidation .
+dfmi:IncompleteMartensiteTransformation a dfm:FailureMode ; rdfs:label "Incomplete martensite transformation" ; rdfs:comment "Soft zones remain after quenching (demo)." ;
+    dfm:occursAt dfmi:BPillarReinforcement ; dfm:causes dfmi:SideImpactIntrusionIncrease ;
+    dfm:detectedBy dfmi:HardnessTraverse .
+dfmi:EdgeMicrocracking a dfm:FailureMode ; rdfs:label "Edge microcracking" ; rdfs:comment "Micro-cracks at the trimmed edge (demo)." ;
+    dfm:occursAt dfmi:BPillarOuter ; dfm:causes dfmi:FatigueCrackGrowth .
+
+# ---------- Effects ----------
+dfmi:AnchorPulloutUnderLoad a dfm:Effect ; rdfs:label "Anchor pullout under load" ; rdfs:comment "Seatbelt anchor separates in a crash load case (demo)." ; dfm:defaultSeverity 10 .
+dfmi:RoofCrushResistanceLoss a dfm:Effect ; rdfs:label "Roof crush resistance loss" ; rdfs:comment "Reduced roof strength in rollover (demo)." ; dfm:defaultSeverity 9 .
+dfmi:SideImpactIntrusionIncrease a dfm:Effect ; rdfs:label "Side impact intrusion increase" ; rdfs:comment "Larger intrusion into the occupant space (demo)." ; dfm:defaultSeverity 9 .
+dfmi:FatigueCrackGrowth a dfm:Effect ; rdfs:label "Fatigue crack growth" ; rdfs:comment "Crack growth in service leading to rattle or reduced stiffness (demo)." ; dfm:defaultSeverity 5 .
+
+# ---------- Controls ----------
+dfmi:DelayedFractureTest a dfm:DetectionControl ; rdfs:label "Delayed fracture test" ; rdfs:comment "Sustained-load test on welded coupons (demo)." .
+dfmi:UltrasonicWeldInspection a dfm:DetectionControl ; rdfs:label "Ultrasonic weld inspection" ; rdfs:comment "Non-destructive nugget size check (demo)." .
+dfmi:HardnessTraverse a dfm:DetectionControl ; rdfs:label "Hardness traverse" ; rdfs:comment "Micro-hardness profile across the zone (demo)." .
+dfmi:FurnaceDewPointControl a dfm:PreventionControl ; rdfs:label "Furnace dew point control" ; rdfs:comment "Limit furnace humidity to reduce hydrogen uptake (demo)." .
+dfmi:WeldScheduleValidation a dfm:PreventionControl ; rdfs:label "Weld schedule validation" ; rdfs:comment "Validated current/time/force window (demo)." .
+dfmi:ElectrodeDressingSchedule a dfm:PreventionControl ; rdfs:label "Electrode dressing schedule" ; rdfs:comment "Periodic tip dressing (demo)." .

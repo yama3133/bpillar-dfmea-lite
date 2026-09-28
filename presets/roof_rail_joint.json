@@ -1,0 +1,5 @@
+{
+  "name": "Roof rail joint",
+  "componentIri": "https://example.org/bpillar-dfmea/id/RoofRailJoint",
+  "scenario": "Review the roof rail joint between the B-pillar outer and inner panels. The supplier proposes extending the electrode dressing interval by 30%. Identify failure modes at this joint, trace their causal chains back to the originating manufacturing processes, and rate severity, occurrence and detection."
+}
