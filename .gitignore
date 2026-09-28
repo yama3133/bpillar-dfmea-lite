@@ -8,3 +8,4 @@ __pycache__/
 *.egg-info/
 web/dist/
 web/tsconfig.tsbuildinfo
+.DS_Store

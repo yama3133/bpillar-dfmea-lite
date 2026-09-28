@@ -1,6 +1,8 @@
 # bpillar-dfmea-lite
 
-AWS ブログ「Building AI-augmented B-pillar DFMEA on AWS」(2026-09-27)の構成を軽量に再現したデモです。
+🇯🇵 **日本語** | [🇺🇸 English](./README.en.md)
+
+AWS ブログ「[Building AI-augmented B-pillar DFMEA on AWS: Architecture, multi-agent orchestration, and implementation](https://aws.amazon.com/blogs/industries/building-ai-augmented-b-pillar-dfmea-on-aws-architecture-multi-agent-orchestration-and-implementation/)」(2026-09-27)の構成を軽量に再現したデモです。
 
 > **注意**: `ontology/` の工学的内容(材料・工程・故障モード・因果関係・重大度など)はデモ用の簡略化であり、実データではありません。実際の設計判断には使用しないでください。
 
@@ -76,6 +78,7 @@ cd ../web && npm ci && npm run build
 cd ../infra && npx cdk deploy DfmeaSiteDeploy   # web/dist と config.json を配置
 ```
 
+- デプロイ先は、現在の AWS 認証情報のアカウント(`CDK_DEFAULT_ACCOUNT`)の us-east-1 です。
 - Lambda 依存は `infra/lib/python-bundle.ts` で uv によりローカルバンドリング(aarch64 manylinux wheel)。Docker は不要です。
 - HITL を必ず発生させたい場合: `npx cdk deploy DfmeaBackend -c hitlThreshold=1.01`
 - ローカル開発で `npm run dev` を使う場合は、デプロイ済みの値で `web/public/config.json` を作成してください(git 管理外)。
