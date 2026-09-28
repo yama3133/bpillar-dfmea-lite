@@ -15,8 +15,8 @@ class Finding(BaseModel):
     occurrence: int = Field(ge=1, le=10)
     detection: int = Field(ge=1, le=10)
     confidence: float = Field(ge=0.0, le=1.0)
-    rationale: str
-    recommended_actions: list[str]
+    rationale: str = Field(description="Written in the requested output language")
+    recommended_actions: list[str] = Field(description="Each item written in the requested output language")
 
 
 class ReviewFindings(BaseModel):

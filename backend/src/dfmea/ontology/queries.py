@@ -4,17 +4,31 @@ from __future__ import annotations
 
 from typing import Any
 
-from rdflib import RDF, RDFS, URIRef
+from rdflib import RDF, RDFS, Literal, URIRef
 from rdflib.term import Node
 
+from ..i18n import RDF_LANG_TAG
 from .store import DFM, OntologyStore
 
 
-def _node(store: OntologyStore, iri: URIRef | Node) -> dict[str, Any]:
+def label_for(store: OntologyStore, iri: URIRef | Node, lang: str = "en") -> str:
+    """rdfs:label in `lang` (API code, e.g. zh-CN), else @en, else an untagged label, else the IRI tail."""
+    labels = [o for o in store.graph.objects(iri, RDFS.label) if isinstance(o, Literal)]
+    by_tag: dict[str, str] = {}
+    for o in sorted(labels, key=str):
+        by_tag.setdefault((o.language or "").lower(), str(o))
+    for tag in (RDF_LANG_TAG.get(lang, lang).lower(), "en", ""):
+        if by_tag.get(tag):
+            return by_tag[tag]
+    s = str(iri)
+    return s[max(s.rfind("/"), s.rfind("#")) + 1:]
+
+
+def _node(store: OntologyStore, iri: URIRef | Node, lang: str = "en") -> dict[str, Any]:
     g = store.graph
     return {
         "iri": str(iri),
-        "label": str(g.value(iri, RDFS.label) or ""),
+        "label": label_for(store, iri, lang),
         "comment": str(g.value(iri, RDFS.comment) or ""),
     }
 
@@ -32,17 +46,17 @@ def is_instance_of(store: OntologyStore, iri: str, cls: URIRef) -> bool:
     return False
 
 
-def instances(store: OntologyStore, cls: URIRef) -> list[dict[str, Any]]:
+def instances(store: OntologyStore, cls: URIRef, lang: str = "en") -> list[dict[str, Any]]:
     g = store.graph
     subs = set(g.transitive_subjects(RDFS.subClassOf, cls))
     out = {s for c in subs for s in g.subjects(RDF.type, c)}
-    return _sorted([_node(store, s) for s in out])
+    return _sorted([_node(store, s, lang) for s in out])
 
 
-def list_components(store: OntologyStore) -> list[dict[str, Any]]:
-    """Components and interfaces (both are valid review targets)."""
-    comps = [dict(n, kind="Component") for n in instances(store, DFM.Component)]
-    ifs = [dict(n, kind="Interface") for n in instances(store, DFM.Interface)]
+def list_components(store: OntologyStore, lang: str = "en") -> list[dict[str, Any]]:
+    """Components and interfaces (both are valid review targets). Agent tools use the default (English) labels."""
+    comps = [dict(n, kind="Component") for n in instances(store, DFM.Component, lang)]
+    ifs = [dict(n, kind="Interface") for n in instances(store, DFM.Interface, lang)]
     return comps + ifs
 
 

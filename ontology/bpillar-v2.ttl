@@ -8,93 +8,93 @@
 @prefix dfmi: <https://example.org/bpillar-dfmea/id/> .
 
 <https://example.org/bpillar-dfmea/ontology> a owl:Ontology ;
-    rdfs:label "B-pillar DFMEA demo ontology" ;
+    rdfs:label "B-pillar DFMEA demo ontology"@en , "Bピラー DFMEA デモ用オントロジー"@ja , "أنطولوجيا تجريبية لتحليل DFMEA للعمود B"@ar , "B柱 DFMEA 演示本体"@zh-Hans ;
     rdfs:comment "Simplified demo ontology for a hot-stamped B-pillar. Not real engineering data." ;
     owl:versionInfo "1.1.0" .
 
 # ---------- Classes ----------
-dfm:Component a owl:Class ; rdfs:label "Component" ; rdfs:comment "A physical part of the B-pillar assembly." .
-dfm:Interface a owl:Class ; rdfs:label "Interface" ; rdfs:comment "A joint or mounting location where components meet." .
-dfm:Material a owl:Class ; rdfs:label "Material" ; rdfs:comment "Base material or coating of a component." .
-dfm:Process a owl:Class ; rdfs:label "Process" ; rdfs:comment "A manufacturing process step." .
-dfm:Cause a owl:Class ; rdfs:label "Cause" ; rdfs:comment "A physical or process condition that can lead to failure." .
-dfm:FailureMode a owl:Class ; rdfs:label "Failure mode" ; rdfs:comment "The way a component or interface fails." .
-dfm:Effect a owl:Class ; rdfs:label "Effect" ; rdfs:comment "Consequence of a failure mode at vehicle level." .
-dfm:DetectionControl a owl:Class ; rdfs:label "Detection control" ; rdfs:comment "Test or inspection that detects a failure mode." .
-dfm:PreventionControl a owl:Class ; rdfs:label "Prevention control" ; rdfs:comment "Design or process measure that prevents a failure mode." .
+dfm:Component a owl:Class ; rdfs:label "Component"@en , "部品"@ja , "مكوّن"@ar , "零部件"@zh-Hans ; rdfs:comment "A physical part of the B-pillar assembly." .
+dfm:Interface a owl:Class ; rdfs:label "Interface"@en , "インターフェース"@ja , "واجهة ربط"@ar , "接口"@zh-Hans ; rdfs:comment "A joint or mounting location where components meet." .
+dfm:Material a owl:Class ; rdfs:label "Material"@en , "材料"@ja , "مادة"@ar , "材料"@zh-Hans ; rdfs:comment "Base material or coating of a component." .
+dfm:Process a owl:Class ; rdfs:label "Process"@en , "工程"@ja , "عملية تصنيع"@ar , "工艺"@zh-Hans ; rdfs:comment "A manufacturing process step." .
+dfm:Cause a owl:Class ; rdfs:label "Cause"@en , "原因"@ja , "سبب"@ar , "原因"@zh-Hans ; rdfs:comment "A physical or process condition that can lead to failure." .
+dfm:FailureMode a owl:Class ; rdfs:label "Failure mode"@en , "故障モード"@ja , "نمط الفشل"@ar , "失效模式"@zh-Hans ; rdfs:comment "The way a component or interface fails." .
+dfm:Effect a owl:Class ; rdfs:label "Effect"@en , "影響"@ja , "أثر الفشل"@ar , "失效影响"@zh-Hans ; rdfs:comment "Consequence of a failure mode at vehicle level." .
+dfm:DetectionControl a owl:Class ; rdfs:label "Detection control"@en , "検出管理"@ja , "ضابط الكشف"@ar , "探测控制"@zh-Hans ; rdfs:comment "Test or inspection that detects a failure mode." .
+dfm:PreventionControl a owl:Class ; rdfs:label "Prevention control"@en , "予防管理"@ja , "ضابط الوقاية"@ar , "预防控制"@zh-Hans ; rdfs:comment "Design or process measure that prevents a failure mode." .
 
 # ---------- Properties ----------
 dfm:madeOf a owl:ObjectProperty ; rdfs:domain dfm:Component ; rdfs:range dfm:Material ;
-    rdfs:label "made of" ; rdfs:comment "Component is made of a material." .
+    rdfs:label "made of"@en , "材料"@ja , "مصنوع من"@ar , "材质"@zh-Hans ; rdfs:comment "Component is made of a material." .
 dfm:formedBy a owl:ObjectProperty ; rdfs:domain dfm:Component ; rdfs:range dfm:Process ;
-    rdfs:label "formed by" ; rdfs:comment "Component is formed by a process." .
+    rdfs:label "formed by"@en , "成形工程"@ja , "يُشكَّل بواسطة"@ar , "成形工艺"@zh-Hans ; rdfs:comment "Component is formed by a process." .
 dfm:joins a owl:ObjectProperty ; rdfs:domain dfm:Interface ; rdfs:range dfm:Component ;
-    rdfs:label "joins" ; rdfs:comment "Interface joins a component." .
+    rdfs:label "joins"@en , "接合対象"@ja , "يربط"@ar , "连接"@zh-Hans ; rdfs:comment "Interface joins a component." .
 dfm:joinedBy a owl:ObjectProperty ; rdfs:domain dfm:Interface ; rdfs:range dfm:Process ;
-    rdfs:label "joined by" ; rdfs:comment "Interface is created by a joining process." .
+    rdfs:label "joined by"@en , "接合工程"@ja , "يُربط بواسطة"@ar , "连接工艺"@zh-Hans ; rdfs:comment "Interface is created by a joining process." .
 dfm:induces a owl:ObjectProperty ; rdfs:domain dfm:Process ; rdfs:range dfm:Cause ;
-    rdfs:label "induces" ; rdfs:comment "Process can induce a cause." .
+    rdfs:label "induces"@en , "誘発する"@ja , "يُحدِث"@ar , "诱发"@zh-Hans ; rdfs:comment "Process can induce a cause." .
 dfm:causes a owl:ObjectProperty ;
-    rdfs:label "causes" ; rdfs:comment "Cause -> Cause/FailureMode, or FailureMode -> Effect." .
+    rdfs:label "causes"@en , "引き起こす"@ja , "يؤدي إلى"@ar , "导致"@zh-Hans ; rdfs:comment "Cause -> Cause/FailureMode, or FailureMode -> Effect." .
 dfm:occursAt a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ;
-    rdfs:label "occurs at" ; rdfs:comment "Failure mode occurs at a component or interface." .
+    rdfs:label "occurs at"@en , "発生箇所"@ja , "يحدث في"@ar , "发生位置"@zh-Hans ; rdfs:comment "Failure mode occurs at a component or interface." .
 dfm:detectedBy a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ; rdfs:range dfm:DetectionControl ;
-    rdfs:label "detected by" ; rdfs:comment "Failure mode is detected by a detection control." .
+    rdfs:label "detected by"@en , "検出手段"@ja , "يُكشف بواسطة"@ar , "探测手段"@zh-Hans ; rdfs:comment "Failure mode is detected by a detection control." .
 dfm:preventedBy a owl:ObjectProperty ; rdfs:domain dfm:FailureMode ; rdfs:range dfm:PreventionControl ;
-    rdfs:label "prevented by" ; rdfs:comment "Failure mode is prevented by a prevention control." .
+    rdfs:label "prevented by"@en , "予防手段"@ja , "يُمنع بواسطة"@ar , "预防手段"@zh-Hans ; rdfs:comment "Failure mode is prevented by a prevention control." .
 dfm:defaultSeverity a owl:DatatypeProperty ; rdfs:domain dfm:Effect ; rdfs:range xsd:integer ;
-    rdfs:label "default severity" ; rdfs:comment "Reference severity (1-10) for the effect." .
+    rdfs:label "default severity"@en , "既定の重大度"@ja , "درجة الخطورة الافتراضية"@ar , "默认严重度"@zh-Hans ; rdfs:comment "Reference severity (1-10) for the effect." .
 
 # ---------- Materials ----------
-dfmi:Steel22MnB5 a dfm:Material ; rdfs:label "22MnB5" ; rdfs:comment "Boron steel for press hardening (demo)." .
-dfmi:AlSiCoating a dfm:Material ; rdfs:label "AlSi coating" ; rdfs:comment "Aluminium-silicon pre-coating (demo)." .
+dfmi:Steel22MnB5 a dfm:Material ; rdfs:label "22MnB5"@en , "22MnB5"@ja , "22MnB5"@ar , "22MnB5"@zh-Hans ; rdfs:comment "Boron steel for press hardening (demo)." .
+dfmi:AlSiCoating a dfm:Material ; rdfs:label "AlSi coating"@en , "AlSiめっき"@ja , "طلاء AlSi"@ar , "AlSi 镀层"@zh-Hans ; rdfs:comment "Aluminium-silicon pre-coating (demo)." .
 
 # ---------- Processes ----------
-dfmi:HotStamping a dfm:Process ; rdfs:label "Hot stamping" ; rdfs:comment "Press hardening of the blank (demo)." .
-dfmi:Austenitization a dfm:Process ; rdfs:label "Austenitization" ; rdfs:comment "Furnace heating of the blank before forming (demo)." .
-dfmi:DieQuench a dfm:Process ; rdfs:label "Die quench" ; rdfs:comment "Quenching in the cooled die (demo)." .
-dfmi:SpotWelding a dfm:Process ; rdfs:label "Spot welding" ; rdfs:comment "Resistance spot welding of the assembly (demo)." .
-dfmi:LaserTrimming a dfm:Process ; rdfs:label "Laser trimming" ; rdfs:comment "Laser trimming of the hardened part (demo)." .
+dfmi:HotStamping a dfm:Process ; rdfs:label "Hot stamping"@en , "ホットスタンプ"@ja , "الختم على الساخن"@ar , "热冲压"@zh-Hans ; rdfs:comment "Press hardening of the blank (demo)." .
+dfmi:Austenitization a dfm:Process ; rdfs:label "Austenitization"@en , "オーステナイト化"@ja , "الأوستنة"@ar , "奥氏体化"@zh-Hans ; rdfs:comment "Furnace heating of the blank before forming (demo)." .
+dfmi:DieQuench a dfm:Process ; rdfs:label "Die quench"@en , "金型焼入れ"@ja , "الإخماد داخل القالب"@ar , "模内淬火"@zh-Hans ; rdfs:comment "Quenching in the cooled die (demo)." .
+dfmi:SpotWelding a dfm:Process ; rdfs:label "Spot welding"@en , "スポット溶接"@ja , "اللحام النقطي"@ar , "点焊"@zh-Hans ; rdfs:comment "Resistance spot welding of the assembly (demo)." .
+dfmi:LaserTrimming a dfm:Process ; rdfs:label "Laser trimming"@en , "レーザートリム"@ja , "التشذيب بالليزر"@ar , "激光切边"@zh-Hans ; rdfs:comment "Laser trimming of the hardened part (demo)." .
 
 # ---------- Components ----------
-dfmi:BPillarOuter a dfm:Component ; rdfs:label "B-pillar outer" ; rdfs:comment "Outer panel of the B-pillar (demo)." ;
+dfmi:BPillarOuter a dfm:Component ; rdfs:label "B-pillar outer"@en , "Bピラー アウター"@ja , "اللوح الخارجي للعمود B"@ar , "B柱外板"@zh-Hans ; rdfs:comment "Outer panel of the B-pillar (demo)." ;
     dfm:madeOf dfmi:Steel22MnB5 , dfmi:AlSiCoating ;
     dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench , dfmi:LaserTrimming .
-dfmi:BPillarInner a dfm:Component ; rdfs:label "B-pillar inner" ; rdfs:comment "Inner panel of the B-pillar (demo)." ;
+dfmi:BPillarInner a dfm:Component ; rdfs:label "B-pillar inner"@en , "Bピラー インナー"@ja , "اللوح الداخلي للعمود B"@ar , "B柱内板"@zh-Hans ; rdfs:comment "Inner panel of the B-pillar (demo)." ;
     dfm:madeOf dfmi:Steel22MnB5 ;
     dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench .
-dfmi:BPillarReinforcement a dfm:Component ; rdfs:label "B-pillar reinforcement" ; rdfs:comment "Reinforcement between outer and inner (demo)." ;
+dfmi:BPillarReinforcement a dfm:Component ; rdfs:label "B-pillar reinforcement"@en , "Bピラー レインフォースメント"@ja , "لوح تقوية العمود B"@ar , "B柱加强板"@zh-Hans ; rdfs:comment "Reinforcement between outer and inner (demo)." ;
     dfm:madeOf dfmi:Steel22MnB5 , dfmi:AlSiCoating ;
     dfm:formedBy dfmi:HotStamping , dfmi:Austenitization , dfmi:DieQuench .
 
 # ---------- Interfaces ----------
-dfmi:RoofRailJoint a dfm:Interface ; rdfs:label "Roof rail joint" ; rdfs:comment "Upper joint to the roof rail (demo)." ;
+dfmi:RoofRailJoint a dfm:Interface ; rdfs:label "Roof rail joint"@en , "ルーフレール接合部"@ja , "وصلة عارضة السقف"@ar , "顶盖边梁接头"@zh-Hans ; rdfs:comment "Upper joint to the roof rail (demo)." ;
     dfm:joins dfmi:BPillarOuter , dfmi:BPillarInner ; dfm:joinedBy dfmi:SpotWelding .
-dfmi:RockerJoint a dfm:Interface ; rdfs:label "Rocker joint" ; rdfs:comment "Lower joint to the rocker (demo)." ;
+dfmi:RockerJoint a dfm:Interface ; rdfs:label "Rocker joint"@en , "ロッカー接合部"@ja , "وصلة العتبة الجانبية"@ar , "门槛梁接头"@zh-Hans ; rdfs:comment "Lower joint to the rocker (demo)." ;
     dfm:joins dfmi:BPillarOuter , dfmi:BPillarInner , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
-dfmi:SeatbeltAnchorMount a dfm:Interface ; rdfs:label "Seatbelt anchor mount" ; rdfs:comment "Mounting of the upper seatbelt anchor (demo)." ;
+dfmi:SeatbeltAnchorMount a dfm:Interface ; rdfs:label "Seatbelt anchor mount"@en , "シートベルトアンカー取付部"@ja , "نقطة تثبيت مرساة حزام الأمان"@ar , "安全带锚点安装座"@zh-Hans ; rdfs:comment "Mounting of the upper seatbelt anchor (demo)." ;
     dfm:joins dfmi:BPillarInner , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
-dfmi:HingeReinforcementJoint a dfm:Interface ; rdfs:label "Hinge reinforcement joint" ; rdfs:comment "Rear door hinge reinforcement joint (demo)." ;
+dfmi:HingeReinforcementJoint a dfm:Interface ; rdfs:label "Hinge reinforcement joint"@en , "ヒンジレインフォース接合部"@ja , "وصلة تقوية المفصلة"@ar , "铰链加强板接头"@zh-Hans ; rdfs:comment "Rear door hinge reinforcement joint (demo)." ;
     dfm:joins dfmi:BPillarOuter , dfmi:BPillarReinforcement ; dfm:joinedBy dfmi:SpotWelding .
 
 # ---------- Causes ----------
-dfmi:HydrogenAbsorption a dfm:Cause ; rdfs:label "Hydrogen absorption" ; rdfs:comment "Hydrogen uptake from furnace atmosphere (demo)." ;
+dfmi:HydrogenAbsorption a dfm:Cause ; rdfs:label "Hydrogen absorption"@en , "水素吸収"@ja , "امتصاص الهيدروجين"@ar , "氢吸收"@zh-Hans ; rdfs:comment "Hydrogen uptake from furnace atmosphere (demo)." ;
     dfm:causes dfmi:HydrogenEmbrittlement .
-dfmi:HydrogenEmbrittlement a dfm:Cause ; rdfs:label "Hydrogen embrittlement" ; rdfs:comment "Loss of ductility due to diffusible hydrogen (demo)." ;
+dfmi:HydrogenEmbrittlement a dfm:Cause ; rdfs:label "Hydrogen embrittlement"@en , "水素脆化"@ja , "التقصف الهيدروجيني"@ar , "氢脆"@zh-Hans ; rdfs:comment "Loss of ductility due to diffusible hydrogen (demo)." ;
     dfm:causes dfmi:HAZDelayedFracture .
-dfmi:SpotWeldResidualStress a dfm:Cause ; rdfs:label "Spot weld residual stress" ; rdfs:comment "Tensile residual stress around the weld (demo)." ;
+dfmi:SpotWeldResidualStress a dfm:Cause ; rdfs:label "Spot weld residual stress"@en , "スポット溶接部の残留応力"@ja , "الإجهاد المتبقي حول اللحام النقطي"@ar , "点焊残余应力"@zh-Hans ; rdfs:comment "Tensile residual stress around the weld (demo)." ;
     dfm:causes dfmi:HAZDelayedFracture .
-dfmi:ElectrodeTipWear a dfm:Cause ; rdfs:label "Electrode tip wear" ; rdfs:comment "Mushrooming of electrode tips (demo)." ;
+dfmi:ElectrodeTipWear a dfm:Cause ; rdfs:label "Electrode tip wear"@en , "電極チップの摩耗"@ja , "تآكل طرف القطب"@ar , "电极帽磨损"@zh-Hans ; rdfs:comment "Mushrooming of electrode tips (demo)." ;
     dfm:causes dfmi:WeldCurrentDensityDrop .
-dfmi:WeldCurrentDensityDrop a dfm:Cause ; rdfs:label "Weld current density drop" ; rdfs:comment "Insufficient current density at the faying surface (demo)." ;
+dfmi:WeldCurrentDensityDrop a dfm:Cause ; rdfs:label "Weld current density drop"@en , "溶接電流密度の低下"@ja , "انخفاض كثافة تيار اللحام"@ar , "焊接电流密度下降"@zh-Hans ; rdfs:comment "Insufficient current density at the faying surface (demo)." ;
     dfm:causes dfmi:WeldNuggetPullout .
-dfmi:CoatingInterference a dfm:Cause ; rdfs:label "Coating interference" ; rdfs:comment "AlSi coating layer disturbing nugget formation (demo)." ;
+dfmi:CoatingInterference a dfm:Cause ; rdfs:label "Coating interference"@en , "めっき層による阻害"@ja , "تداخل طبقة الطلاء"@ar , "镀层干扰"@zh-Hans ; rdfs:comment "AlSi coating layer disturbing nugget formation (demo)." ;
     dfm:causes dfmi:WeldNuggetPullout .
-dfmi:HAZOvertempering a dfm:Cause ; rdfs:label "HAZ over-tempering" ; rdfs:comment "Excess heat input tempers martensite in the HAZ (demo)." ;
+dfmi:HAZOvertempering a dfm:Cause ; rdfs:label "HAZ over-tempering"@en , "HAZの過焼戻し"@ja , "المراجعة الحرارية المفرطة في المنطقة المتأثرة بالحرارة (HAZ)"@ar , "HAZ 过回火"@zh-Hans ; rdfs:comment "Excess heat input tempers martensite in the HAZ (demo)." ;
     dfm:causes dfmi:HAZSoftening .
-dfmi:InsufficientQuenchRate a dfm:Cause ; rdfs:label "Insufficient quench rate" ; rdfs:comment "Cooling rate below critical rate (demo)." ;
+dfmi:InsufficientQuenchRate a dfm:Cause ; rdfs:label "Insufficient quench rate"@en , "焼入れ冷却速度の不足"@ja , "عدم كفاية معدل التبريد أثناء الإخماد"@ar , "淬火冷却速度不足"@zh-Hans ; rdfs:comment "Cooling rate below critical rate (demo)." ;
     dfm:causes dfmi:IncompleteMartensiteTransformation .
-dfmi:TrimEdgeHeatDamage a dfm:Cause ; rdfs:label "Trim edge heat damage" ; rdfs:comment "Heat-affected trim edge (demo)." ;
+dfmi:TrimEdgeHeatDamage a dfm:Cause ; rdfs:label "Trim edge heat damage"@en , "トリム端面の熱損傷"@ja , "تلف حراري في حافة التشذيب"@ar , "切边热损伤"@zh-Hans ; rdfs:comment "Heat-affected trim edge (demo)." ;
     dfm:causes dfmi:EdgeMicrocracking .
 
 # ---------- Process -> Cause ----------
@@ -104,32 +104,32 @@ dfmi:DieQuench dfm:induces dfmi:InsufficientQuenchRate .
 dfmi:LaserTrimming dfm:induces dfmi:TrimEdgeHeatDamage .
 
 # ---------- Failure modes ----------
-dfmi:HAZDelayedFracture a dfm:FailureMode ; rdfs:label "HAZ delayed fracture" ; rdfs:comment "Time-delayed cracking in the weld HAZ under sustained load (demo)." ;
+dfmi:HAZDelayedFracture a dfm:FailureMode ; rdfs:label "HAZ delayed fracture"@en , "HAZ遅れ破壊"@ja , "الكسر المتأخر في المنطقة المتأثرة بالحرارة (HAZ)"@ar , "HAZ 延迟断裂"@zh-Hans ; rdfs:comment "Time-delayed cracking in the weld HAZ under sustained load (demo)." ;
     dfm:occursAt dfmi:SeatbeltAnchorMount ; dfm:causes dfmi:AnchorPulloutUnderLoad ;
     dfm:detectedBy dfmi:ThermalDesorptionAnalysis ; dfm:preventedBy dfmi:FurnaceDewPointControl .
-dfmi:WeldNuggetPullout a dfm:FailureMode ; rdfs:label "Weld nugget pullout" ; rdfs:comment "Undersized nugget pulls out of the sheet (demo)." ;
+dfmi:WeldNuggetPullout a dfm:FailureMode ; rdfs:label "Weld nugget pullout"@en , "溶接ナゲットの抜け"@ja , "انسلاخ نواة اللحام"@ar , "焊核拔出"@zh-Hans ; rdfs:comment "Undersized nugget pulls out of the sheet (demo)." ;
     dfm:occursAt dfmi:RoofRailJoint ; dfm:causes dfmi:RoofCrushResistanceLoss ;
     dfm:detectedBy dfmi:UltrasonicWeldInspection ; dfm:preventedBy dfmi:WeldScheduleValidation , dfmi:ElectrodeDressingSchedule .
-dfmi:HAZSoftening a dfm:FailureMode ; rdfs:label "HAZ softening" ; rdfs:comment "Local hardness drop around the weld (demo)." ;
+dfmi:HAZSoftening a dfm:FailureMode ; rdfs:label "HAZ softening"@en , "HAZ軟化"@ja , "تليّن المنطقة المتأثرة بالحرارة (HAZ)"@ar , "HAZ 软化"@zh-Hans ; rdfs:comment "Local hardness drop around the weld (demo)." ;
     dfm:occursAt dfmi:RockerJoint ; dfm:causes dfmi:SideImpactIntrusionIncrease ;
     dfm:detectedBy dfmi:HardnessTraverse ; dfm:preventedBy dfmi:WeldScheduleValidation .
-dfmi:IncompleteMartensiteTransformation a dfm:FailureMode ; rdfs:label "Incomplete martensite transformation" ; rdfs:comment "Soft zones remain after quenching (demo)." ;
+dfmi:IncompleteMartensiteTransformation a dfm:FailureMode ; rdfs:label "Incomplete martensite transformation"@en , "マルテンサイト変態の不足"@ja , "تحوّل مارتنسيتي غير مكتمل"@ar , "马氏体转变不完全"@zh-Hans ; rdfs:comment "Soft zones remain after quenching (demo)." ;
     dfm:occursAt dfmi:BPillarReinforcement ; dfm:causes dfmi:SideImpactIntrusionIncrease ;
     dfm:detectedBy dfmi:HardnessTraverse .
-dfmi:EdgeMicrocracking a dfm:FailureMode ; rdfs:label "Edge microcracking" ; rdfs:comment "Micro-cracks at the trimmed edge (demo)." ;
+dfmi:EdgeMicrocracking a dfm:FailureMode ; rdfs:label "Edge microcracking"@en , "端面のマイクロクラック"@ja , "تشققات دقيقة في الحافة"@ar , "边缘微裂纹"@zh-Hans ; rdfs:comment "Micro-cracks at the trimmed edge (demo)." ;
     dfm:occursAt dfmi:BPillarOuter ; dfm:causes dfmi:FatigueCrackGrowth .
 
 # ---------- Effects ----------
-dfmi:AnchorPulloutUnderLoad a dfm:Effect ; rdfs:label "Anchor pullout under load" ; rdfs:comment "Seatbelt anchor separates in a crash load case (demo)." ; dfm:defaultSeverity 10 .
-dfmi:RoofCrushResistanceLoss a dfm:Effect ; rdfs:label "Roof crush resistance loss" ; rdfs:comment "Reduced roof strength in rollover (demo)." ; dfm:defaultSeverity 9 .
-dfmi:SideImpactIntrusionIncrease a dfm:Effect ; rdfs:label "Side impact intrusion increase" ; rdfs:comment "Larger intrusion into the occupant space (demo)." ; dfm:defaultSeverity 9 .
-dfmi:FatigueCrackGrowth a dfm:Effect ; rdfs:label "Fatigue crack growth" ; rdfs:comment "Crack growth in service leading to rattle or reduced stiffness (demo)." ; dfm:defaultSeverity 5 .
+dfmi:AnchorPulloutUnderLoad a dfm:Effect ; rdfs:label "Anchor pullout under load"@en , "荷重下でのアンカー抜け"@ja , "انخلاع المرساة تحت الحمل"@ar , "载荷下锚点拔脱"@zh-Hans ; rdfs:comment "Seatbelt anchor separates in a crash load case (demo)." ; dfm:defaultSeverity 10 .
+dfmi:RoofCrushResistanceLoss a dfm:Effect ; rdfs:label "Roof crush resistance loss"@en , "ルーフ耐圧潰性能の低下"@ja , "ضعف مقاومة السقف للانسحاق"@ar , "车顶抗压强度下降"@zh-Hans ; rdfs:comment "Reduced roof strength in rollover (demo)." ; dfm:defaultSeverity 9 .
+dfmi:SideImpactIntrusionIncrease a dfm:Effect ; rdfs:label "Side impact intrusion increase"@en , "側突時の侵入量増加"@ja , "زيادة الاختراق عند الاصطدام الجانبي"@ar , "侧碰侵入量增大"@zh-Hans ; rdfs:comment "Larger intrusion into the occupant space (demo)." ; dfm:defaultSeverity 9 .
+dfmi:FatigueCrackGrowth a dfm:Effect ; rdfs:label "Fatigue crack growth"@en , "疲労き裂の進展"@ja , "نمو شقوق الكلال"@ar , "疲劳裂纹扩展"@zh-Hans ; rdfs:comment "Crack growth in service leading to rattle or reduced stiffness (demo)." ; dfm:defaultSeverity 5 .
 
 # ---------- Controls ----------
-dfmi:DelayedFractureTest a dfm:DetectionControl ; rdfs:label "Delayed fracture test" ; rdfs:comment "Sustained-load test on welded coupons (demo)." .
-dfmi:UltrasonicWeldInspection a dfm:DetectionControl ; rdfs:label "Ultrasonic weld inspection" ; rdfs:comment "Non-destructive nugget size check (demo)." .
-dfmi:HardnessTraverse a dfm:DetectionControl ; rdfs:label "Hardness traverse" ; rdfs:comment "Micro-hardness profile across the zone (demo)." .
-dfmi:FurnaceDewPointControl a dfm:PreventionControl ; rdfs:label "Furnace dew point control" ; rdfs:comment "Limit furnace humidity to reduce hydrogen uptake (demo)." .
-dfmi:WeldScheduleValidation a dfm:PreventionControl ; rdfs:label "Weld schedule validation" ; rdfs:comment "Validated current/time/force window (demo)." .
-dfmi:ElectrodeDressingSchedule a dfm:PreventionControl ; rdfs:label "Electrode dressing schedule" ; rdfs:comment "Periodic tip dressing (demo)." .
-dfmi:ThermalDesorptionAnalysis a dfm:DetectionControl ; rdfs:label "Thermal desorption analysis" ; rdfs:comment "Measures diffusible hydrogen content (demo, added in v1.1.0)." .
+dfmi:DelayedFractureTest a dfm:DetectionControl ; rdfs:label "Delayed fracture test"@en , "遅れ破壊試験"@ja , "اختبار الكسر المتأخر"@ar , "延迟断裂试验"@zh-Hans ; rdfs:comment "Sustained-load test on welded coupons (demo)." .
+dfmi:UltrasonicWeldInspection a dfm:DetectionControl ; rdfs:label "Ultrasonic weld inspection"@en , "超音波による溶接検査"@ja , "فحص اللحام بالموجات فوق الصوتية"@ar , "超声波焊点检测"@zh-Hans ; rdfs:comment "Non-destructive nugget size check (demo)." .
+dfmi:HardnessTraverse a dfm:DetectionControl ; rdfs:label "Hardness traverse"@en , "硬さ分布測定"@ja , "قياس توزيع الصلادة"@ar , "硬度分布测试"@zh-Hans ; rdfs:comment "Micro-hardness profile across the zone (demo)." .
+dfmi:FurnaceDewPointControl a dfm:PreventionControl ; rdfs:label "Furnace dew point control"@en , "加熱炉の露点管理"@ja , "التحكم في نقطة الندى داخل الفرن"@ar , "加热炉露点控制"@zh-Hans ; rdfs:comment "Limit furnace humidity to reduce hydrogen uptake (demo)." .
+dfmi:WeldScheduleValidation a dfm:PreventionControl ; rdfs:label "Weld schedule validation"@en , "溶接条件の妥当性確認"@ja , "التحقق من معايير اللحام"@ar , "焊接参数验证"@zh-Hans ; rdfs:comment "Validated current/time/force window (demo)." .
+dfmi:ElectrodeDressingSchedule a dfm:PreventionControl ; rdfs:label "Electrode dressing schedule"@en , "電極チップドレスの周期管理"@ja , "جدول تسوية أطراف الأقطاب"@ar , "电极修磨周期"@zh-Hans ; rdfs:comment "Periodic tip dressing (demo)." .
+dfmi:ThermalDesorptionAnalysis a dfm:DetectionControl ; rdfs:label "Thermal desorption analysis"@en , "昇温脱離分析"@ja , "تحليل الانتزاز الحراري"@ar , "热脱附分析"@zh-Hans ; rdfs:comment "Measures diffusible hydrogen content (demo, added in v1.1.0)." .

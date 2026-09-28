@@ -11,7 +11,7 @@ from strands import Agent, tool
 from strands.hooks import BeforeToolCallEvent, HookProvider, HookRegistry
 from strands.models import BedrockModel
 
-from .. import config
+from .. import config, i18n
 from ..ontology.store import OntologyStore
 from .schemas import ReviewFindings
 from .tools import make_ontology_tools
@@ -28,12 +28,14 @@ FAILURE_MODE_PROMPT = f"""You are a DFMEA failure-mode specialist for a hot-stam
 Use the ontology tools to answer the question. Report failure modes, their occursAt locations,
 complete cause paths (root -> immediate cause), effects with defaultSeverity, and detection/prevention controls.
 When you propose a chain, verify it with check_causal_path before reporting it.
-{IRI_RULE} Answer concisely in plain text, always listing full IRIs."""
+{IRI_RULE} Answer concisely in plain text, always listing full IRIs.
+{{language_rule}}"""
 
 STRUCTURE_PROMPT = f"""You are a structural specialist for a hot-stamped automotive B-pillar.
 Use the ontology tools to describe components, interfaces (which components they join, which process joins them)
 and the manufacturing processes involved together with the causes they induce.
-{IRI_RULE} Answer concisely in plain text, always listing full IRIs."""
+{IRI_RULE} Answer concisely in plain text, always listing full IRIs.
+{{language_rule}}"""
 
 ANALYST_PROMPT = f"""You are the lead DFMEA analyst. You do not have direct ontology access; you must consult:
 - structure_specialist: components, interfaces, processes and the causes they induce
@@ -46,7 +48,20 @@ Produce DFMEA findings for the target component and scenario:
   Every adjacent pair, and the last cause -> failure mode -> effect, must be a direct edge reported by the specialist.
 - severity/occurrence/detection are integers 1-10 (use the effect's defaultSeverity as a reference for severity).
 - confidence 0-1 reflects how well the ontology evidence supports the finding and how applicable it is to the scenario.
-{IRI_RULE}"""
+{IRI_RULE}
+{{language_rule}}"""
+
+
+def language_rule(language: str, *, analyst: bool) -> str:
+    name = i18n.PROMPT_LANGUAGE_NAME[language]
+    target = ("Write `rationale` and every item of `recommended_actions` in " if analyst
+              else "Write your explanations in ")
+    return (
+        f"Output language: {target}{name}, as natural, fluent prose for engineers (not word-for-word translation). "
+        "Keep IRIs, JSON keys, finding_id values and numbers exactly as-is (ASCII digits 0-9). "
+        "Use the engineering terms customary in that language; abbreviations such as DFMEA, RPN, HAZ "
+        "and grade names such as 22MnB5 stay in their usual Latin form."
+    )
 
 
 @dataclass
@@ -100,8 +115,13 @@ class AnalysisResult:
     elapsed_sec: float
 
 
-def run_analysis(store: OntologyStore, component_iri: str, scenario: str, emit: Emit) -> AnalysisResult:
+def run_analysis(
+    store: OntologyStore, component_iri: str, scenario: str, emit: Emit, language: str = i18n.DEFAULT_LANGUAGE
+) -> AnalysisResult:
+    if not i18n.is_supported(language):
+        raise ValueError(f"unsupported language: {language}")
     started = time.monotonic()
+    specialist_rule = language_rule(language, analyst=False)
     usage = UsageTracker()
     tools = make_ontology_tools(store)
     counts = {"failure_mode_specialist": 0, "structure_specialist": 0}
@@ -115,7 +135,7 @@ def run_analysis(store: OntologyStore, component_iri: str, scenario: str, emit: 
         agent = Agent(
             name=name,
             model=_model(config.SPECIALIST_MODEL_ID, 4096),
-            system_prompt=prompt,
+            system_prompt=prompt.format(language_rule=specialist_rule),
             tools=tool_list,
             hooks=[ToolCallEmitter(name, emit)],
             callback_handler=None,
@@ -144,15 +164,16 @@ def run_analysis(store: OntologyStore, component_iri: str, scenario: str, emit: 
         """
         return call_specialist("structure_specialist", STRUCTURE_PROMPT, tools["structure"], question)
 
-    emit("agent.started", {"agent": "analyst", "model": config.ANALYST_MODEL_ID})
+    emit("agent.started", {"agent": "analyst", "model": config.ANALYST_MODEL_ID, "language": language})
     analyst = Agent(
         name="analyst",
         model=_model(config.ANALYST_MODEL_ID, 8192),
-        system_prompt=ANALYST_PROMPT,
+        system_prompt=ANALYST_PROMPT.format(language_rule=language_rule(language, analyst=True)),
         tools=[structure_specialist, failure_mode_specialist],
         callback_handler=None,
     )
-    task = json.dumps({"target_component_iri": component_iri, "scenario": scenario}, ensure_ascii=False)
+    task = json.dumps({"target_component_iri": component_iri, "scenario": scenario, "output_language": language},
+                      ensure_ascii=False)
     result = analyst(f"Review request:\n{task}", structured_output_model=ReviewFindings)
     usage.add("analyst", result)
     findings = result.structured_output

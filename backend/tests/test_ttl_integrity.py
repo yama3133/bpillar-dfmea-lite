@@ -56,3 +56,14 @@ def test_every_failure_mode_reachable_from_process_and_has_effect(s):
 def test_classes_declared(s):
     for c in CLASSES:
         assert (c, RDF.type, OWL.Class) in s.graph
+
+
+LABEL_TAGS = {"en", "ja", "ar", "zh-hans"}
+
+
+def test_all_nodes_have_labels_in_four_languages(s):
+    g = s.graph
+    for x in {x for x in g.subjects(RDF.type, None) if isinstance(x, URIRef)}:
+        tags = [(o.language or "").lower() for o in g.objects(x, RDFS.label)]
+        assert sorted(tags) == sorted(LABEL_TAGS), (x, tags)
+        assert all(str(o).strip() for o in g.objects(x, RDFS.label)), x

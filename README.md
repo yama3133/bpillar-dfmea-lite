@@ -39,6 +39,12 @@ PinOntology → Analyze → Validate → needsHitl? ─no─→ Finalize(complet
 `{"v":1,"reviewId","seq","ts","type","data"}`。`seq` は META アイテムのアトミックカウンター。
 フロントは UUIDv4 で reviewId を生成 → WebSocket 接続 → `POST /reviews` → `GET /reviews/{id}/events?after=<seq>` で欠損補完。
 
+## 多言語対応
+
+- UI: 日本語(ja)/英語(en)/アラビア語(ar)/中国語簡体字(zh-CN)。上部バーで切り替え、localStorage(`dfmea.lang`)に保存。未保存時は `navigator.languages` から推定し、該当なしは ja。ar は `<html dir="rtl">`。辞書は `web/src/i18n.ts`(キー欠落は型エラー)。
+- AI 出力: `POST /reviews` の `language`(ja|en|ar|zh-CN、省略時 ja、不正値は 400)を META に保存し、rationale / recommended_actions をその言語で生成。作成後に UI 言語を切り替えても再生成しません。
+- オントロジー: `rdfs:label` に `@en @ja @ar @zh-Hans` を付与(API の `zh-CN` は TTL では `zh-Hans`)。`GET /ontology/components?lang=`(省略時 ja)は該当言語 → 英語 → IRI 末尾の順でフォールバック。エージェントのツールは英語ラベルを使います。
+
 ## 構成
 
 ```
@@ -56,7 +62,7 @@ cd backend
 uv sync
 uv run pytest                  # オフラインテスト(moto / Stubber)
 uv run pytest -m live          # 実 Amazon Bedrock を呼ぶテスト
-uv run python -m dfmea.cli analyze --ttl ../ontology/bpillar.ttl --preset ../presets/seatbelt_anchor.json
+uv run python -m dfmea.cli analyze --ttl ../ontology/bpillar.ttl --preset ../presets/seatbelt_anchor.json --language en
 ```
 
 `aws login` 由来のクレデンシャルを使う場合は `botocore[crt]` が必要です(dev 依存に含めています)。

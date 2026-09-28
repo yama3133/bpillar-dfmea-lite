@@ -8,6 +8,7 @@ import sys
 import time
 
 from .agents.orchestrator import run_analysis
+from .i18n import DEFAULT_LANGUAGE, LANGUAGES
 from .ontology.store import OntologyStore
 from .ontology.validate import validate_findings
 
@@ -19,6 +20,7 @@ def main(argv: list[str] | None = None) -> int:
     a.add_argument("--ttl", required=True)
     a.add_argument("--preset", required=True)
     a.add_argument("--json-out")
+    a.add_argument("--language", choices=LANGUAGES, default=DEFAULT_LANGUAGE)
     args = ap.parse_args(argv)
 
     store = OntologyStore.from_file(args.ttl)
@@ -29,7 +31,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"[{time.monotonic() - t0:7.1f}s] {t} {json.dumps(data, ensure_ascii=False)[:200]}", file=sys.stderr)
 
     print(f"ontology versionInfo={store.version_info} sha256={store.sha256[:12]}", file=sys.stderr)
-    res = run_analysis(store, preset["componentIri"], preset["scenario"], emit)
+    res = run_analysis(store, preset["componentIri"], preset["scenario"], emit, language=args.language)
     findings = [f.model_dump() for f in res.findings.findings]
     vals = validate_findings(store, findings)
     accepted = sum(1 for v in vals if v["status"] == "accepted")

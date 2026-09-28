@@ -11,7 +11,7 @@ from typing import Any
 
 from botocore.exceptions import ClientError
 
-from .. import aws, config
+from .. import aws, config, i18n
 from ..events import emit, list_events
 from ..ontology import queries as q
 from ..ontology.store import OntologyStore
@@ -75,6 +75,7 @@ def _latest_store() -> OntologyStore:
 def create_review(event: dict[str, Any], sub: str) -> tuple[int, Any]:
     b = _body(event)
     rid, comp, scenario = b.get("reviewId", ""), b.get("componentIri", ""), b.get("scenario", "")
+    language = b.get("language", i18n.DEFAULT_LANGUAGE)
     try:
         u = uuid.UUID(str(rid))
     except ValueError as e:
@@ -83,20 +84,22 @@ def create_review(event: dict[str, Any], sub: str) -> tuple[int, Any]:
         raise HttpError(400, "reviewId must be a canonical UUIDv4")
     if not isinstance(scenario, str) or not scenario.strip() or len(scenario) > MAX_SCENARIO:
         raise HttpError(400, f"scenario must be 1-{MAX_SCENARIO} chars")
+    if not i18n.is_supported(language):
+        raise HttpError(400, f"language must be one of {'|'.join(i18n.LANGUAGES)}")
     if comp not in {c["iri"] for c in q.list_components(_latest_store())}:
         raise HttpError(400, "unknown componentIri")
     now = int(time.time())
     try:
         aws.reviews().put_item(
             Item={"reviewId": rid, "sk": "META", "userSub": sub, "componentIri": comp, "scenario": scenario,
-                  "status": "ACCEPTED", "seq": 0, "createdAt": now, "updatedAt": now, "ttl": now + config.TTL_SECONDS},
+                  "language": language, "status": "ACCEPTED", "seq": 0, "createdAt": now, "updatedAt": now, "ttl": now + config.TTL_SECONDS},
             ConditionExpression="attribute_not_exists(reviewId)",
         )
     except ClientError as e:
         if e.response["Error"]["Code"] == "ConditionalCheckFailedException":
             raise HttpError(409, "reviewId already exists") from e
         raise
-    emit(rid, "review.accepted", {"componentIri": comp, "scenario": scenario})
+    emit(rid, "review.accepted", {"componentIri": comp, "scenario": scenario, "language": language})
     ex = aws.sfn().start_execution(
         stateMachineArn=os.environ["STATE_MACHINE_ARN"], name=rid, input=json.dumps({"reviewId": rid})
     )
@@ -157,9 +160,12 @@ def decide(event: dict[str, Any], review_id: str, sub: str, claims: dict[str, An
     return 200, {"reviewId": review_id, "decision": decision}
 
 
-def ontology_components() -> tuple[int, Any]:
+def ontology_components(event: dict[str, Any]) -> tuple[int, Any]:
+    lang = (event.get("queryStringParameters") or {}).get("lang", i18n.DEFAULT_LANGUAGE)
+    if not i18n.is_supported(lang):
+        raise HttpError(400, f"lang must be one of {'|'.join(i18n.LANGUAGES)}")
     store = _latest_store()
-    return 200, {"versionInfo": store.version_info, "components": q.list_components(store)}
+    return 200, {"versionInfo": store.version_info, "lang": lang, "components": q.list_components(store, lang)}
 
 
 def handler(event: dict[str, Any], _ctx: Any = None) -> dict[str, Any]:
@@ -177,7 +183,7 @@ def handler(event: dict[str, Any], _ctx: Any = None) -> dict[str, Any]:
         elif method == "POST" and resource == "/reviews/{id}/decision":
             status, body = decide(event, rid, sub, claims)
         elif method == "GET" and resource == "/ontology/components":
-            status, body = ontology_components()
+            status, body = ontology_components(event)
         else:
             raise HttpError(404, "Not found")
         return _resp(event, status, body)

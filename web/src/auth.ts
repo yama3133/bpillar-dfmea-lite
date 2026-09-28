@@ -1,9 +1,10 @@
 import { fetchAuthSession, getCurrentUser, signIn, signOut } from 'aws-amplify/auth';
+import { AppError } from './errors';
 
 export async function login(username: string, password: string): Promise<void> {
   // Amplify v6 defaults to USER_SRP_AUTH
   const res = await signIn({ username, password });
-  if (!res.isSignedIn) throw new Error(`追加の手順が必要です: ${res.nextStep.signInStep}`);
+  if (!res.isSignedIn) throw new AppError('signInNextStep', res.nextStep.signInStep);
 }
 
 export async function logout(): Promise<void> {

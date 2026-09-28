@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { currentUser, logout } from './auth';
 import { loadConfig } from './config';
+import { LANGS, NATIVE_NAMES, isLang, useI18n, type Lang } from './i18n';
 import Login from './pages/Login';
 import NewReview from './pages/NewReview';
 import ReviewDetail from './pages/ReviewDetail';
@@ -8,6 +9,7 @@ import ReviewDetail from './pages/ReviewDetail';
 export interface PendingReview {
   componentIri: string;
   scenario: string;
+  language: Lang;
 }
 
 function usePath(): [string, (p: string) => void] {
@@ -24,9 +26,24 @@ function usePath(): [string, (p: string) => void] {
   return [path, navigate];
 }
 
+function LanguageSwitcher() {
+  const { lang, setLang, t } = useI18n();
+  return (
+    <select
+      className="lang-switcher"
+      aria-label={t.uiLanguage}
+      value={lang}
+      onChange={(e) => { if (isLang(e.target.value)) setLang(e.target.value); }}
+    >
+      {LANGS.map((l) => <option key={l} value={l} lang={l}>{NATIVE_NAMES[l]}</option>)}
+    </select>
+  );
+}
+
 export default function App() {
+  const { t } = useI18n();
   const [ready, setReady] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [user, setUser] = useState<string | null>(null);
   const [pending, setPending] = useState<Record<string, PendingReview>>({});
   const [path, navigate] = usePath();
@@ -38,23 +55,26 @@ export default function App() {
         setUser(u);
         setReady(true);
       })
-      .catch((e: Error) => setError(e.message));
+      .catch((e: unknown) => setError(e ?? 'unknown'));
   }, []);
 
-  if (error) return <main className="container"><p className="error">設定の読み込みに失敗しました: {error}</p></main>;
-  if (!ready) return <main className="container"><p className="muted">読み込み中…</p></main>;
+  if (error) return <main className="container"><p className="error">{t.configLoadFailed(error instanceof Error ? error.message : String(error))}</p></main>;
+  if (!ready) return <main className="container"><p className="muted">{t.loading}</p></main>;
 
   const match = path.match(/^\/reviews\/([0-9a-f-]{36})$/);
   return (
     <>
       <header className="topbar">
         <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="brand">B-pillar DFMEA Lite</a>
-        {user && (
-          <span className="user">
-            {user}
-            <button className="link" onClick={async () => { await logout(); setUser(null); navigate('/'); }}>ログアウト</button>
-          </span>
-        )}
+        <span className="user">
+          <LanguageSwitcher />
+          {user && (
+            <>
+              <bdi dir="ltr">{user}</bdi>
+              <button className="link" onClick={async () => { await logout(); setUser(null); navigate('/'); }}>{t.logout}</button>
+            </>
+          )}
+        </span>
       </header>
       <main className="container">
         {!user ? (

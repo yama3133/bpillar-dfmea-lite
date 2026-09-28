@@ -7,7 +7,7 @@ from typing import Any
 
 from strands.types.exceptions import ModelThrottledException
 
-from .. import aws, config
+from .. import aws, config, i18n
 from ..agents.orchestrator import run_analysis
 from ..events import emit
 from .workflow import _update_meta, get_meta, load_pinned_store, rpn
@@ -22,7 +22,9 @@ def handler(event: dict[str, Any], _ctx: Any = None) -> dict[str, Any]:
     meta = get_meta(rid)
     store = load_pinned_store(meta)
     try:
-        res = run_analysis(store, meta["componentIri"], meta["scenario"], lambda t, d: emit(rid, t, d))
+        # reviews created before language support have no language attribute
+        res = run_analysis(store, meta["componentIri"], meta["scenario"], lambda t, d: emit(rid, t, d),
+                           language=meta.get("language", i18n.DEFAULT_LANGUAGE))
     except ModelThrottledException as e:
         raise Throttling(str(e)) from e
     table = aws.reviews()

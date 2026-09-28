@@ -1,57 +1,75 @@
+import { lookup, useI18n } from '../i18n';
 import type { Finding, ReviewResponse } from '../types';
 import { localName } from '../types';
 
 function Row({ f, rejected }: { f: Finding; rejected?: boolean }) {
+  const { t } = useI18n();
   return (
     <tr>
-      <td>{f.finding_id}</td>
-      <td>{localName(f.failure_mode_iri)}<div className="muted small">@ {localName(f.component_iri)}</div></td>
-      <td className="path">{f.cause_path.map(localName).join(' → ')}</td>
-      <td>{localName(f.effect_iri)}</td>
+      <td><bdi dir="ltr">{f.finding_id}</bdi></td>
+      <td><bdi dir="ltr">{localName(f.failure_mode_iri)}</bdi><div className="muted small"><bdi dir="ltr">@ {localName(f.component_iri)}</bdi></div></td>
+      <td className="path"><bdi dir="ltr">{f.cause_path.map(localName).join(' → ')}</bdi></td>
+      <td><bdi dir="ltr">{localName(f.effect_iri)}</bdi></td>
       <td className="num">{f.severity}</td>
       <td className="num">{f.occurrence}</td>
       <td className="num">{f.detection}</td>
       <td className="num strong">{f.rpn}</td>
       <td className="num">{f.confidence.toFixed(2)}</td>
       <td>
-        {f.validation ? <span className={rejected ? 'badge bad' : 'badge ok'}>{f.validation.code}</span> : <span className="muted">未検証</span>}
-        {rejected && f.validation && <div className="muted small">{f.validation.detail}</div>}
+        {f.validation
+          ? <span className={rejected ? 'badge bad' : 'badge ok'} title={lookup(t.validationCodes, f.validation.code)}><bdi dir="ltr">{f.validation.code}</bdi></span>
+          : <span className="muted">{t.notValidated}</span>}
+        {rejected && f.validation && (
+          <div className="muted small">
+            {lookup(t.validationCodes, f.validation.code)}
+            <div><bdi dir="ltr">{f.validation.detail}</bdi></div>
+          </div>
+        )}
       </td>
     </tr>
   );
 }
 
 function Table({ rows, rejected }: { rows: Finding[]; rejected?: boolean }) {
+  const { t } = useI18n();
   return (
     <table>
       <thead>
-        <tr><th>ID</th><th>故障モード</th><th>原因パス</th><th>影響</th><th>S</th><th>O</th><th>D</th><th>RPN</th><th>信頼度</th><th>検証</th></tr>
+        <tr>
+          <th>ID</th><th>{t.col.failureMode}</th><th>{t.col.causePath}</th><th>{t.col.effect}</th>
+          <th title={t.col.severity}>S</th><th title={t.col.occurrence}>O</th><th title={t.col.detection}>D</th>
+          <th title={t.col.rpn}>RPN</th><th>{t.col.confidence}</th><th>{t.col.validation}</th>
+        </tr>
       </thead>
       <tbody>{rows.map((f) => <Row key={f.finding_id} f={f} rejected={rejected} />)}</tbody>
     </table>
   );
 }
 
-export default function FindingsTable({ findings }: { findings: ReviewResponse['findings'] }) {
+/** `outputLang` is the language the AI wrote rationale/actions in (fixed at review creation). */
+export default function FindingsTable({ findings, outputLang }: { findings: ReviewResponse['findings']; outputLang?: string }) {
+  const { t } = useI18n();
   const accepted = [...findings.accepted].sort((a, b) => b.rpn - a.rpn);
   const pending = findings.pending;
   if (!accepted.length && !findings.rejected.length && !pending.length) return null;
   return (
     <section className="card">
-      <h2>所見(RPN降順)</h2>
-      {accepted.length ? <Table rows={accepted} /> : <p className="muted">検証を通過した所見はありません。</p>}
-      {pending.length > 0 && (<><h3>検証待ち</h3><Table rows={pending} /></>)}
+      <h2>{t.findingsTitle}</h2>
+      {accepted.length ? <Table rows={accepted} /> : <p className="muted">{t.noAccepted}</p>}
+      {pending.length > 0 && (<><h3>{t.pendingValidation}</h3><Table rows={pending} /></>)}
       {findings.rejected.length > 0 && (
         <details open>
-          <summary>検証で却下された所見({findings.rejected.length}件)</summary>
+          <summary>{t.rejectedSummary(findings.rejected.length)}</summary>
           <Table rows={findings.rejected} rejected />
         </details>
       )}
       {accepted.map((f) => (
         <details key={f.finding_id} className="rationale">
-          <summary>{f.finding_id} の根拠と推奨対策</summary>
-          <p>{f.rationale}</p>
-          <ul>{f.recommended_actions.map((a, i) => <li key={i}>{a}</li>)}</ul>
+          <summary>{t.rationaleSummary(f.finding_id)}</summary>
+          <div lang={outputLang} dir="auto">
+            <p dir="auto">{f.rationale}</p>
+            <ul>{f.recommended_actions.map((a, i) => <li key={i} dir="auto">{a}</li>)}</ul>
+          </div>
         </details>
       ))}
     </section>

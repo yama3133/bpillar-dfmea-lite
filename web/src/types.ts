@@ -37,6 +37,8 @@ export interface Finding {
 export interface Review {
   reviewId: string;
   status: string;
+  /** AI output language fixed at creation; absent on reviews created before multilingual support. */
+  language?: string;
   componentIri: string;
   scenario: string;
   ontology?: { versionInfo?: string; versionId?: string; sha256?: string };

@@ -1,12 +1,10 @@
 import { idToken } from './auth';
 import { config } from './config';
+import { ApiError } from './errors';
+import type { Lang } from './i18n';
 import type { ComponentNode, ReviewEvent, ReviewResponse } from './types';
 
-export class ApiError extends Error {
-  constructor(public status: number, message: string) {
-    super(message);
-  }
-}
+export { ApiError };
 
 async function call<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(config().restUrl.replace(/\/$/, '') + path, {
@@ -20,9 +18,10 @@ async function call<T>(method: string, path: string, body?: unknown): Promise<T>
 }
 
 export const api = {
-  components: () => call<{ versionInfo: string; components: ComponentNode[] }>('GET', '/ontology/components'),
-  createReview: (reviewId: string, componentIri: string, scenario: string) =>
-    call<{ reviewId: string }>('POST', '/reviews', { reviewId, componentIri, scenario }),
+  components: (lang: Lang) =>
+    call<{ versionInfo: string; components: ComponentNode[] }>('GET', `/ontology/components?lang=${encodeURIComponent(lang)}`),
+  createReview: (reviewId: string, componentIri: string, scenario: string, language: Lang) =>
+    call<{ reviewId: string }>('POST', '/reviews', { reviewId, componentIri, scenario, language }),
   getReview: (id: string) => call<ReviewResponse>('GET', `/reviews/${id}`),
   events: (id: string, after: number) =>
     call<{ events: ReviewEvent[] }>('GET', `/reviews/${id}/events?after=${after}`),

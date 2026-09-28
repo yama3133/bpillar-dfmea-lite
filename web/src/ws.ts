@@ -1,5 +1,6 @@
 import { idToken } from './auth';
 import { config } from './config';
+import { AppError } from './errors';
 import type { ReviewEvent } from './types';
 
 /** Opens the review event socket. Resolves once the socket is open. */
@@ -25,7 +26,7 @@ export async function openReviewSocket(
       }
     };
     ws.onerror = () => {
-      if (!opened) reject(new Error('WebSocket接続に失敗しました'));
+      if (!opened) reject(new AppError('wsConnect'));
     };
     ws.onclose = () => {
       if (opened) onClose();

@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import { login } from '../auth';
+import { errorText } from '../errors';
+import { useI18n } from '../i18n';
 
 export default function Login({ onSignedIn }: { onSignedIn: () => void }) {
+  const { t } = useI18n();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
 
   return (
     <form
@@ -18,17 +21,17 @@ export default function Login({ onSignedIn }: { onSignedIn: () => void }) {
           await login(username, password);
           onSignedIn();
         } catch (err) {
-          setError((err as Error).message);
+          setError(err ?? 'unknown');
         } finally {
           setBusy(false);
         }
       }}
     >
-      <h1>サインイン</h1>
-      <label>メールアドレス<input type="email" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" /></label>
-      <label>パスワード<input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" /></label>
-      {error && <p className="error">{error}</p>}
-      <button type="submit" disabled={busy}>{busy ? 'サインイン中…' : 'サインイン'}</button>
+      <h1>{t.signInTitle}</h1>
+      <label>{t.email}<input type="email" dir="ltr" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" /></label>
+      <label>{t.password}<input type="password" dir="ltr" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" /></label>
+      {error !== null && <p className="error">{errorText(t, error)}</p>}
+      <button type="submit" disabled={busy}>{busy ? t.signingIn : t.signIn}</button>
     </form>
   );
 }

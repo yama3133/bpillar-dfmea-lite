@@ -17,6 +17,53 @@ def call(ev):
 def test_components(aws_mock):
     s, b, _ = call(api_event("GET", "/ontology/components"))
     assert s == 200 and b["versionInfo"] == "1.0.0" and len(b["components"]) == 7
+    assert b["lang"] == "ja"
+    assert {c["label"] for c in b["components"]} >= {"シートベルトアンカー取付部"}
+
+
+def test_components_lang(aws_mock):
+    for lang, label in [("en", "Seatbelt anchor mount"), ("ar", "نقطة تثبيت مرساة حزام الأمان"),
+                        ("zh-CN", "安全带锚点安装座")]:
+        s, b, _ = call(api_event("GET", "/ontology/components", qs={"lang": lang}))
+        assert s == 200 and b["lang"] == lang
+        assert {c["iri"]: c["label"] for c in b["components"]}[NS + "SeatbeltAnchorMount"] == label
+    for bad in ["fr", "zh", "zh-Hans", "EN", ""]:
+        assert call(api_event("GET", "/ontology/components", qs={"lang": bad}))[0] == 400
+
+
+def _fake_sfn(monkeypatch):
+    class FakeSfn:
+        def start_execution(self, **kw):
+            return {"executionArn": "arn:x"}
+
+    monkeypatch.setattr(aws, "sfn", lambda: FakeSfn())
+
+
+def test_create_review_language(aws_mock, monkeypatch):
+    _fake_sfn(monkeypatch)
+    cases = [("33333333-3333-4333-8333-00000000000a", None, "ja"),
+             ("33333333-3333-4333-8333-00000000000b", "en", "en"),
+             ("33333333-3333-4333-8333-00000000000c", "ar", "ar"),
+             ("33333333-3333-4333-8333-00000000000d", "zh-CN", "zh-CN")]
+    for rid, lang, stored in cases:
+        body = {"reviewId": rid, "componentIri": NS + "RoofRailJoint", "scenario": "x"}
+        if lang is not None:
+            body["language"] = lang
+        assert call(api_event("POST", "/reviews", body=body))[0] == 202
+        meta = aws.reviews().get_item(Key={"reviewId": rid, "sk": "META"})["Item"]
+        assert meta["language"] == stored
+        s, b, _ = call(api_event("GET", "/reviews/{id}", path_id=rid))
+        assert b["review"]["language"] == stored
+
+
+def test_create_review_invalid_language(aws_mock, monkeypatch):
+    _fake_sfn(monkeypatch)
+    for bad in ["fr", "zh", "zh-Hans", "JA", "", None, 1, ["ja"]]:
+        body = {"reviewId": RID, "componentIri": NS + "RoofRailJoint", "scenario": "x", "language": bad}
+        s, b, _ = call(api_event("POST", "/reviews", body=body))
+        assert s == 400 and "language" in b["message"], bad
+    # nothing was written for rejected requests
+    assert "Item" not in aws.reviews().get_item(Key={"reviewId": RID, "sk": "META"})
 
 
 def test_create_review_starts_execution(aws_mock, monkeypatch):

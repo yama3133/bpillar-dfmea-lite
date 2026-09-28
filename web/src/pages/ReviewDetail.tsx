@@ -4,6 +4,8 @@ import type { PendingReview } from '../App';
 import EventTimeline from '../components/EventTimeline';
 import FindingsTable from '../components/FindingsTable';
 import HitlPanel from '../components/HitlPanel';
+import { errorText } from '../errors';
+import { intlLocale, isLang, lookup, useI18n } from '../i18n';
 import { localName, TERMINAL, type ReviewEvent, type ReviewResponse } from '../types';
 import { openReviewSocket } from '../ws';
 
@@ -16,9 +18,10 @@ interface Props {
 }
 
 export default function ReviewDetail({ reviewId, pending, onCreated }: Props) {
+  const { lang, t } = useI18n();
   const [events, setEvents] = useState<Map<number, ReviewEvent>>(new Map());
   const [review, setReview] = useState<ReviewResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   const [live, setLive] = useState(false);
   const lastSeq = useRef(0);
   const created = useRef(false);
@@ -28,7 +31,7 @@ export default function ReviewDetail({ reviewId, pending, onCreated }: Props) {
     try {
       setReview(await api.getReview(reviewId));
     } catch (e) {
-      if (!(e instanceof ApiError && e.status === 404)) setError((e as Error).message);
+      if (!(e instanceof ApiError && e.status === 404)) setError(e);
     }
   }, [reviewId]);
 
@@ -50,7 +53,7 @@ export default function ReviewDetail({ reviewId, pending, onCreated }: Props) {
     try {
       merge((await api.events(reviewId, lastSeq.current)).events);
     } catch (e) {
-      if (!(e instanceof ApiError && e.status === 404)) setError((e as Error).message);
+      if (!(e instanceof ApiError && e.status === 404)) setError(e);
     }
   }, [reviewId, merge]);
 
@@ -71,16 +74,16 @@ export default function ReviewDetail({ reviewId, pending, onCreated }: Props) {
         if (pending && !created.current) {
           created.current = true;
           try {
-            await api.createReview(reviewId, pending.componentIri, pending.scenario);
+            await api.createReview(reviewId, pending.componentIri, pending.scenario, pending.language);
           } catch (e) {
-            if (!(e instanceof ApiError && e.status === 409)) setError((e as Error).message);
+            if (!(e instanceof ApiError && e.status === 409)) setError(e);
           }
           onCreated();
         }
         await backfill();
         await refresh();
       } catch (e) {
-        setError((e as Error).message);
+        setError(e);
         if (!disposed && !terminal.current) timer = setTimeout(connect, 3000);
       }
     };
@@ -95,29 +98,35 @@ export default function ReviewDetail({ reviewId, pending, onCreated }: Props) {
 
   const ordered = useMemo(() => [...events.values()].sort((a, b) => a.seq - b.seq), [events]);
   const r = review?.review;
-  const status = r?.status ?? (ordered.length ? '進行中' : '開始待ち');
+  const status = r?.status ?? (ordered.length ? 'inProgress' : 'notStarted');
+  const reviewLang = r?.language ?? pending?.language;
   const hitl = [...ordered].reverse().find((e) => e.type === 'hitl.required');
 
   return (
     <div className="detail">
       <section className="card">
-        <h1>レビュー <code>{reviewId.slice(0, 8)}</code></h1>
+        <h1>{t.reviewTitle} <code>{reviewId.slice(0, 8)}</code></h1>
         <dl className="meta">
-          <dt>状態</dt><dd><span className={`status status-${status}`}>{status}</span> {live ? <span className="muted">● 接続中</span> : <span className="muted">○ 未接続</span>}</dd>
-          <dt>対象</dt><dd>{r ? localName(r.componentIri) : pending ? localName(pending.componentIri) : '—'}</dd>
-          <dt>オントロジー</dt><dd>{r?.ontology?.versionInfo ? `v${r.ontology.versionInfo} (sha256 ${r.ontology.sha256?.slice(0, 12)}…)` : '—'}</dd>
+          <dt>{t.status}</dt><dd><span className={`status status-${status}`} title={status}>{lookup(t.statuses, status)}</span> {live ? <span className="muted">{t.connected}</span> : <span className="muted">{t.disconnected}</span>}</dd>
+          <dt>{t.targetShort}</dt><dd><bdi dir="ltr">{r ? localName(r.componentIri) : pending ? localName(pending.componentIri) : '—'}</bdi></dd>
+          <dt>{t.aiLanguage}</dt>
+          <dd>
+            {reviewLang ? (isLang(reviewLang) ? t.langNames[reviewLang] : reviewLang) : (r ? t.aiLanguageUnknown : '—')}
+            <div className="muted small">{t.aiLanguageNote}</div>
+          </dd>
+          <dt>{t.ontology}</dt><dd><bdi dir="ltr">{r?.ontology?.versionInfo ? `v${r.ontology.versionInfo} (sha256 ${r.ontology.sha256?.slice(0, 12)}…)` : '—'}</bdi></dd>
           {r?.usage?.totalTokens !== undefined && (
-            <><dt>分析</dt><dd>{r.analysisSec}s / {r.usage.totalTokens.toLocaleString()} tokens</dd></>
+            <><dt>{t.analysis}</dt><dd>{t.analysisValue(String(r.analysisSec), r.usage.totalTokens.toLocaleString(intlLocale(lang)))}</dd></>
           )}
-          {r?.decision && (<><dt>判断</dt><dd>{r.decision.decision}({r.decision.by}){r.decision.comment && `: ${r.decision.comment}`}</dd></>)}
+          {r?.decision && (<><dt>{t.decision}</dt><dd>{lookup(t.decisions, r.decision.decision)} (<bdi dir="ltr">{r.decision.by}</bdi>){r.decision.comment && <>: <bdi dir="auto">{r.decision.comment}</bdi></>}</dd></>)}
         </dl>
-        {r?.scenario && <p className="scenario">{r.scenario}</p>}
-        {error && <p className="error">{error}</p>}
+        {r?.scenario && <p className="scenario" dir="auto">{r.scenario}</p>}
+        {error !== null && <p className="error">{errorText(t, error)}</p>}
       </section>
       {r?.status === 'WAITING_HITL' && hitl && (
         <HitlPanel reviewId={reviewId} event={hitl} findings={review?.findings.accepted ?? []} onDecided={refresh} />
       )}
-      {review && <FindingsTable findings={review.findings} />}
+      {review && <FindingsTable findings={review.findings} outputLang={reviewLang} />}
       <EventTimeline events={ordered} />
     </div>
   );
