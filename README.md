@@ -13,7 +13,7 @@ AWS ブログ「Building AI-augmented B-pillar DFMEA on AWS」(2026-09-27)の構
 | AWS WAF | `DfmeaWaf`(CommonRuleSet + IP ごと 1000 リクエスト/5 分) |
 | API Gateway REST + WebSocket | REST(Cognito オーソライザー)、WebSocket($connect で ID トークン検証) |
 | Amazon Neptune | rdflib + S3 上の TTL(バージョニング有効、レビューごとに versionId を固定) |
-| OpenSearch / S3 Vectors | 不使用 |
+| Amazon OpenSearch Serverless(Amazon Bedrock Knowledge Bases) | 不使用 |
 | マルチエージェント | Strands Agents「Agents as Tools」: 分析(Claude Sonnet 4.6)+ 専門 2(Claude Haiku 4.5)、Lambda 上 |
 | Human-in-the-loop | Step Functions `WAIT_FOR_TASK_TOKEN` 1 か所 |
 
